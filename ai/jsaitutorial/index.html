@@ -1,0 +1,36 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Security</title>
+  <link rel="stylesheet" href="./style.css">
+  <script>
+    //window.$ = window.jQuery = require('../jquery-3.0.0.min.js');
+    require('coffee-script/register');  // for versions < 1.7.0, use: require('coffee-script');
+  </script>
+
+</head>
+
+<body>
+  <div class="scene">
+    <div class="grass">
+      <div class="road">
+        <div class="ai">
+          <div class="sensor_1">1</div>
+          <div class="sensor_2">2</div>
+          <div class="sensor_3">3</div>
+        </div>
+        <div class="wall">
+        </div>
+      </div>
+    </div>
+    <div class="debugArea">
+      <textarea id="debugTextarea" class="debugTextareaClass" cols="30" rows="10"></textarea>
+    </div>
+  </div>
+  <script>
+    require('./script.coffee');
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,47 @@
+From d09c7b4687d4006a2e8f217b3fb3926adfcc1b23 Mon Sep 17 00:00:00 2001
+From: jigme1968 <jigme1968@gmail.com>
+Date: Thu, 9 May 2019 02:26:14 +0800
+Subject: [PATCH] buy
+
+---
+ src/crossexchangeflow.coffee | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/src/crossexchangeflow.coffee b/src/crossexchangeflow.coffee
+index 1b0a4999e..b7374f820 100644
+--- a/src/crossexchangeflow.coffee
++++ b/src/crossexchangeflow.coffee
+@@ -2129,6 +2129,8 @@ class CCEFlowTaijiFunction extends CycleCrossExchangeFlowBase
+     switch
+       # 注意順序
+       when @bar.chartChannel > 0 > @previousBar?.chartChannel then true
++      when @bar.lowBelowAll(['mdx','mda','bbandma']) and @bbbYangCycle() then true
++
+       when @buyAtBa() and @nowRise('bbandma',loose) then true
+       when @buyBelowMdOnBa() then true
+ 
+@@ -2150,8 +2152,6 @@ class CCEFlowTaijiFunction extends CycleCrossExchangeFlowBase
+     loose = true
+     
+     switch    
+-      when @bar.lowBelowAll(['mdx','mda','bbandma']) then true
+-
+       when @mayinfishf.sizeOver(0) and @nowDrop('bbandma',loose) and @bar.highBelowLine('bbandma') then false
+       when @buyAfterYinCorner() and @taijiLongYangSec and @bar.gsBull() and @bbbYangCycle() then true
+ 
+@@ -2233,10 +2233,9 @@ class CCEFlowTaijiFunction extends CycleCrossExchangeFlowBase
+   buyBelowMdOnBa: ->
+     loose = true
+ 
+-    #@nowRise('bbandma',loose) \
++    @nowRise('bbandma',loose) \
+     #and 'buy' isnt @activeAction \
+-    #and 
+-    @bar.lowBelowAll(['mdx','mda','bbandma']) \
++    and @bar.lowBelowAll(['mdx','mda','bbandma']) \
+     and @mayangfishx.sizeOver(0) \
+     and @bbbyangfishx.sizeUnder(9) \
+     and @bar.mdx > @bar.bbandma > @bar.ba 
+-- 
+2.21.0
+

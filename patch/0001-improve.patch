@@ -1,0 +1,92 @@
+From 8dddfc905c46dafef319c2e7e6c437a8278260ce Mon Sep 17 00:00:00 2001
+From: jigme1968 <jigme1968@gmail.com>
+Date: Thu, 9 May 2019 02:15:45 +0800
+Subject: [PATCH] improve
+
+---
+ src/crossexchangeflow.coffee | 23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
+
+diff --git a/src/crossexchangeflow.coffee b/src/crossexchangeflow.coffee
+index 37d2e88ca..1b0a4999e 100644
+--- a/src/crossexchangeflow.coffee
++++ b/src/crossexchangeflow.coffee
+@@ -989,7 +989,7 @@ class CycleCrossExchangeFlowBase extends BaseDataFlow
+ 
+       # 極強勢區間
+       when @superLongChannel() then {buytp:50,selltp:45}
+-      when @superShortChannel() or @shortChannel() then {buytp: 1, selltp: 1}
++      when (@superShortChannel() or @shortChannel()) and @taijiLongYinSec then {buytp: 1, selltp: 1}
+       #when @bar.highBelowLine('bbbbax') then {buytp:1,selltp:1}
+       # 大週期行情處於熊市則謹慎退出,故倉位不增加
+       #when @bar.gsBothBear(@nowTrading) then {buytp:1,selltp:1}
+@@ -2025,6 +2025,7 @@ class CCEFlowTaijiFunction extends CycleCrossExchangeFlowBase
+     #return @shortChannel()
+ 
+     switch # 注意保持順序
++      when @taijiLongYangSec and @bar.closeUponAll(['mdx','mda']) then false
+       # 肯定不是 super long 但其他不定,故需放在此處
+       #$# 
+       when @longAgainAfterDeepDive() then true
+@@ -2129,6 +2130,8 @@ class CCEFlowTaijiFunction extends CycleCrossExchangeFlowBase
+       # 注意順序
+       when @bar.chartChannel > 0 > @previousBar?.chartChannel then true
+       when @buyAtBa() and @nowRise('bbandma',loose) then true
++      when @buyBelowMdOnBa() then true
++
+       when @buyAfterYinCorner() and @nowRise('bbandma',loose) and @bar.lowBelowAny(['mdx','bbandma'])
+         true
+ 
+@@ -2147,8 +2150,11 @@ class CCEFlowTaijiFunction extends CycleCrossExchangeFlowBase
+     loose = true
+     
+     switch    
++      when @bar.lowBelowAll(['mdx','mda','bbandma']) then true
++
+       when @mayinfishf.sizeOver(0) and @nowDrop('bbandma',loose) and @bar.highBelowLine('bbandma') then false
+       when @buyAfterYinCorner() and @taijiLongYangSec and @bar.gsBull() and @bbbYangCycle() then true
++
+       when @buyAtBa() \
+       and (@bar.gsBull() or (@bar.gsBear() and @bbbYinCycle() and @isShortable))
+         true
+@@ -2225,12 +2231,15 @@ class CCEFlowTaijiFunction extends CycleCrossExchangeFlowBase
+ 
+ 
+   buyBelowMdOnBa: ->
+-    @nowRise('bbandma') \
++    loose = true
++
++    #@nowRise('bbandma',loose) \
+     #and 'buy' isnt @activeAction \
+-    and @bar.lowBelowAll(['mdx','mda','bbandma']) \
++    #and 
++    @bar.lowBelowAll(['mdx','mda','bbandma']) \
+     and @mayangfishx.sizeOver(0) \
+-    and @bar.mdx > @bar.bbandma > @bar.ba \
+-    and @bbbyangfishx.sizeUnder(9)
++    and @bbbyangfishx.sizeUnder(9) \
++    and @bar.mdx > @bar.bbandma > @bar.ba 
+ 
+ 
+ 
+@@ -2264,6 +2273,7 @@ class CCEFlowTaijiFunction extends CycleCrossExchangeFlowBase
+   # 基本賣出點: @yinfishf head special, 以及 body 段 closeDxAnyTba(),然後加上其他過濾條件
+   sell_simple: ->
+     switch
++      when @taijiLongYangSec and @bar.lowBelowAny(['mdx','mda']) then false
+       # 超強區間儘量不動,以防踏空追漲弄巧成拙.且此處不動,則方便在後續的普通多頭區間製作攔截退出方法
+       # 注意: 一旦價格跌破 mdx 即不再是超強區間
+       when @superLongChannel() then @superLongChannelSell()
+@@ -2422,6 +2432,9 @@ class CCEFlowTaijiFunction extends CycleCrossExchangeFlowBase
+   sellAtTa: ->
+     loose = true
+     switch
++      when @bar.closeDxAnyTba({fishes:[@bbbyinfishx,@bbcyinfishx,@yinfish],formerBar:@previousBar,minSize:1}) then true
++      #$#when @bar.highUponHigher(['bbatax','ta']) then true
++
+       when @pulseUpBbctax() then true
+       when @touchWeakenTax() then true
+       when @bar.gsBear() and @bar.closeDownCrossAny(['bbbtax','mata'],@previousBar,loose) then true
+-- 
+2.21.0
+
